@@ -1,4 +1,4 @@
-package smux
+package gfsmux // import "go.gridfinity.dev/gfsmux"
 
 import (
 	"encoding/binary"
@@ -7,10 +7,10 @@ import (
 
 const ( // cmds
 	// protocol version 1:
-	cmdSYN byte = iota // stream open
-	cmdFIN             // stream close, a.k.a EOF mark
-	cmdPSH             // data push
-	cmdNOP             // no operation
+	CmdSyn byte = iota // stream open
+	CmdFin             // stream close, a.k.a EOF mark
+	CmdPsh             // data push
+	CmdNop             // no operation
 
 	// protocol version 2 extra commands
 	// notify bytes consumed by remote peer-end
@@ -33,22 +33,22 @@ const (
 	sizeOfCmd    = 1
 	sizeOfLength = 2
 	sizeOfSid    = 4
-	headerSize   = sizeOfVer + sizeOfCmd + sizeOfSid + sizeOfLength
+	HeaderSize   = sizeOfVer + sizeOfCmd + sizeOfSid + sizeOfLength
 )
 
-// Frame defines a packet from or to be multiplexed into a single connection
+// Frame defines a packet from or to be multiplexed into a single Connection
 type Frame struct {
-	ver  byte
-	cmd  byte
-	sid  uint32
-	data []byte
+	Ver  byte
+	Cmd  byte
+	Sid  uint32
+	Data []byte
 }
 
-func newFrame(version byte, cmd byte, sid uint32) Frame {
-	return Frame{ver: version, cmd: cmd, sid: sid}
+func NewFrame(Version, Cmd byte, Sid uint32) Frame {
+	return Frame{Ver: Version, Cmd: Cmd, Sid: Sid}
 }
 
-type rawHeader [headerSize]byte
+type rawHeader [HeaderSize]byte
 
 func (h rawHeader) Version() byte {
 	return h[0]
@@ -76,6 +76,7 @@ type updHeader [szCmdUPD]byte
 func (h updHeader) Consumed() uint32 {
 	return binary.LittleEndian.Uint32(h[:])
 }
+
 func (h updHeader) Window() uint32 {
 	return binary.LittleEndian.Uint32(h[4:])
 }

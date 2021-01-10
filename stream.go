@@ -1,4 +1,4 @@
-package smux
+package gfsmux // import "go.gridfinity.dev/gfsmux"
 
 import (
 	"encoding/binary"
@@ -81,7 +81,7 @@ func (s *Stream) Read(b []byte) (n int, err error) {
 
 // tryRead is the nonblocking version of Read
 func (s *Stream) tryRead(b []byte) (n int, err error) {
-	if s.sess.config.Version == 2 {
+	if s.sess.Config.Version == 2 {
 		return s.tryReadv2(b)
 	}
 
@@ -137,13 +137,13 @@ func (s *Stream) tryReadv2(b []byte) (n int, err error) {
 
 	// in an ideal environment:
 	// if more than half of buffer has consumed, send read ack to peer
-	// based on round-trip time of ACK, continous flowing data
+	// based on round-trip time of ACK, continuous flowing data
 	// won't slow down because of waiting for ACK, as long as the
 	// consumer keeps on reading data
 	// s.numRead == n also notify window at the first read
 	s.numRead += uint32(n)
 	s.incr += uint32(n)
-	if s.incr >= uint32(s.sess.config.MaxStreamBuffer/2) || s.numRead == uint32(n) {
+	if s.incr >= uint32(s.sess.Config.MaxStreamBuffer/2) || s.numRead == uint32(n) {
 		notifyConsumed = s.numRead
 		s.incr = 0
 	}
@@ -154,9 +154,8 @@ func (s *Stream) tryReadv2(b []byte) (n int, err error) {
 		if notifyConsumed > 0 {
 			err := s.sendWindowUpdate(notifyConsumed)
 			return n, err
-		} else {
-			return n, nil
 		}
+		return n, nil
 	}
 
 	select {
@@ -169,7 +168,7 @@ func (s *Stream) tryReadv2(b []byte) (n int, err error) {
 
 // WriteTo implements io.WriteTo
 func (s *Stream) WriteTo(w io.Writer) (n int64, err error) {
-	if s.sess.config.Version == 2 {
+	if s.sess.Config.Version == 2 {
 		return s.writeTov2(w)
 	}
 
@@ -212,7 +211,7 @@ func (s *Stream) writeTov2(w io.Writer) (n int64, err error) {
 		}
 		s.numRead += uint32(len(buf))
 		s.incr += uint32(len(buf))
-		if s.incr >= uint32(s.sess.config.MaxStreamBuffer/2) || s.numRead == uint32(len(buf)) {
+		if s.incr >= uint32(s.sess.Config.MaxStreamBuffer/2) || s.numRead == uint32(len(buf)) {
 			notifyConsumed = s.numRead
 			s.incr = 0
 		}
@@ -250,12 +249,12 @@ func (s *Stream) sendWindowUpdate(consumed uint32) error {
 		deadline = timer.C
 	}
 
-	frame := newFrame(byte(s.sess.config.Version), cmdUPD, s.id)
+	frame := NewFrame(byte(s.sess.Config.Version), cmdUPD, s.id)
 	var hdr updHeader
 	binary.LittleEndian.PutUint32(hdr[:], consumed)
-	binary.LittleEndian.PutUint32(hdr[4:], uint32(s.sess.config.MaxStreamBuffer))
-	frame.data = hdr[:]
-	_, err := s.sess.writeFrameInternal(frame, deadline, 0)
+	binary.LittleEndian.PutUint32(hdr[4:], uint32(s.sess.Config.MaxStreamBuffer))
+	frame.Data = hdr[:]
+	_, err := s.sess.WriteFrameInternal(frame, deadline, 0)
 	return err
 }
 
@@ -288,7 +287,6 @@ func (s *Stream) waitRead() error {
 	case <-s.die:
 		return io.ErrClosedPipe
 	}
-
 }
 
 // Write implements net.Conn
@@ -296,7 +294,7 @@ func (s *Stream) waitRead() error {
 // Note that the behavior when multiple goroutines write concurrently is not deterministic,
 // frames may interleave in random way.
 func (s *Stream) Write(b []byte) (n int, err error) {
-	if s.sess.config.Version == 2 {
+	if s.sess.Config.Version == 2 {
 		return s.writeV2(b)
 	}
 
@@ -316,16 +314,16 @@ func (s *Stream) Write(b []byte) (n int, err error) {
 
 	// frame split and transmit
 	sent := 0
-	frame := newFrame(byte(s.sess.config.Version), cmdPSH, s.id)
+	frame := NewFrame(byte(s.sess.Config.Version), CmdPsh, s.id)
 	bts := b
 	for len(bts) > 0 {
 		sz := len(bts)
 		if sz > s.frameSize {
 			sz = s.frameSize
 		}
-		frame.data = bts[:sz]
+		frame.Data = bts[:sz]
 		bts = bts[sz:]
-		n, err := s.sess.writeFrameInternal(frame, deadline, uint64(s.numWritten))
+		n, err := s.sess.WriteFrameInternal(frame, deadline, uint64(s.numWritten))
 		s.numWritten++
 		sent += n
 		if err != nil {
@@ -359,7 +357,7 @@ func (s *Stream) writeV2(b []byte) (n int, err error) {
 
 	// frame split and transmit process
 	sent := 0
-	frame := newFrame(byte(s.sess.config.Version), cmdPSH, s.id)
+	frame := NewFrame(byte(s.sess.Config.Version), CmdPsh, s.id)
 
 	for {
 		// per stream sliding window control
@@ -391,9 +389,9 @@ func (s *Stream) writeV2(b []byte) (n int, err error) {
 				if sz > s.frameSize {
 					sz = s.frameSize
 				}
-				frame.data = bts[:sz]
+				frame.Data = bts[:sz]
 				bts = bts[sz:]
-				n, err := s.sess.writeFrameInternal(frame, deadline, uint64(atomic.LoadUint32(&s.numWritten)))
+				n, err := s.sess.WriteFrameInternal(frame, deadline, uint64(atomic.LoadUint32(&s.numWritten)))
 				atomic.AddUint32(&s.numWritten, uint32(sz))
 				sent += n
 				if err != nil {
@@ -434,12 +432,11 @@ func (s *Stream) Close() error {
 	})
 
 	if once {
-		_, err = s.sess.writeFrame(newFrame(byte(s.sess.config.Version), cmdFIN, s.id))
+		_, err = s.sess.WriteFrame(NewFrame(byte(s.sess.Config.Version), CmdFin, s.id))
 		s.sess.streamClosed(s.id)
 		return err
-	} else {
-		return io.ErrClosedPipe
 	}
+	return io.ErrClosedPipe
 }
 
 // GetDieCh returns a readonly chan which can be readable
@@ -483,7 +480,7 @@ func (s *Stream) sessionClose() { s.dieOnce.Do(func() { close(s.die) }) }
 
 // LocalAddr satisfies net.Conn interface
 func (s *Stream) LocalAddr() net.Addr {
-	if ts, ok := s.sess.conn.(interface {
+	if ts, ok := s.sess.Conn.(interface {
 		LocalAddr() net.Addr
 	}); ok {
 		return ts.LocalAddr()
@@ -493,7 +490,7 @@ func (s *Stream) LocalAddr() net.Addr {
 
 // RemoteAddr satisfies net.Conn interface
 func (s *Stream) RemoteAddr() net.Addr {
-	if ts, ok := s.sess.conn.(interface {
+	if ts, ok := s.sess.Conn.(interface {
 		RemoteAddr() net.Addr
 	}); ok {
 		return ts.RemoteAddr()
@@ -532,7 +529,7 @@ func (s *Stream) notifyReadEvent() {
 }
 
 // update command
-func (s *Stream) update(consumed uint32, window uint32) {
+func (s *Stream) update(consumed, window uint32) {
 	atomic.StoreUint32(&s.peerConsumed, consumed)
 	atomic.StoreUint32(&s.peerWindow, window)
 	select {

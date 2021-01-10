@@ -1,17 +1,21 @@
-package smux
+package gfsmux_test
 
 import (
 	"container/heap"
 	"testing"
+
+	smux "go.gridfinity.dev/gfsmux"
+	u "go.gridfinity.dev/leaktestfe"
 )
 
 func TestShaper(t *testing.T) {
-	w1 := writeRequest{prio: 10}
-	w2 := writeRequest{prio: 10}
-	w3 := writeRequest{prio: 20}
-	w4 := writeRequest{prio: 100}
+	defer u.Leakplug(t)
+	w1 := smux.WriteRequest{Prio: 10}
+	w2 := smux.WriteRequest{Prio: 10}
+	w3 := smux.WriteRequest{Prio: 20}
+	w4 := smux.WriteRequest{Prio: 100}
 
-	var reqs shaperHeap
+	var reqs smux.ShaperHeap
 	heap.Push(&reqs, w4)
 	heap.Push(&reqs, w3)
 	heap.Push(&reqs, w2)
@@ -19,12 +23,12 @@ func TestShaper(t *testing.T) {
 
 	var lastPrio uint64
 	for len(reqs) > 0 {
-		w := heap.Pop(&reqs).(writeRequest)
-		if w.prio < lastPrio {
+		w := heap.Pop(&reqs).(smux.WriteRequest)
+		if w.Prio < lastPrio {
 			t.Fatal("incorrect shaper priority")
 		}
 
-		t.Log("prio:", w.prio)
-		lastPrio = w.prio
+		t.Log("Prio:", w.Prio)
+		lastPrio = w.Prio
 	}
 }

@@ -1,4 +1,4 @@
-package smux
+package gfsmux // import "go.gridfinity.dev/gfsmux"
 
 import (
 	"errors"
@@ -40,18 +40,17 @@ func (alloc *Allocator) Get(size int) []byte {
 		return nil
 	}
 
-	bits := msb(size)
+	bits := Smsb(size)
 	if size == 1<<bits {
 		return alloc.buffers[bits].Get().([]byte)[:size]
-	} else {
-		return alloc.buffers[bits+1].Get().([]byte)[:size]
 	}
+	return alloc.buffers[bits+1].Get().([]byte)[:size]
 }
 
 // Put returns a []byte to pool for future use,
 // which the cap must be exactly 2^n
 func (alloc *Allocator) Put(buf []byte) error {
-	bits := msb(cap(buf))
+	bits := Smsb(cap(buf))
 	if cap(buf) == 0 || cap(buf) > 65536 || cap(buf) != 1<<bits {
 		return errors.New("allocator Put() incorrect buffer size")
 	}
@@ -59,9 +58,9 @@ func (alloc *Allocator) Put(buf []byte) error {
 	return nil
 }
 
-// msb return the pos of most significiant bit
+// Msb return the pos of most significiant bit
 // http://supertech.csail.mit.edu/papers/debruijn.pdf
-func msb(size int) byte {
+func Smsb(size int) byte {
 	v := uint32(size)
 	v |= v >> 1
 	v |= v >> 2

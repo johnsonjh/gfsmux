@@ -1,8 +1,11 @@
-package smux
+package gfsmux_test
 
 import (
 	"bytes"
 	"testing"
+
+	smux "go.gridfinity.dev/gfsmux"
+	u "go.gridfinity.dev/leaktestfe"
 )
 
 type buffer struct {
@@ -15,72 +18,73 @@ func (b *buffer) Close() error {
 }
 
 func TestConfig(t *testing.T) {
-	VerifyConfig(DefaultConfig())
+	defer u.Leakplug(t)
+	smux.VerifyConfig(smux.DefaultConfig())
 
-	config := DefaultConfig()
-	config.KeepAliveInterval = 0
-	err := VerifyConfig(config)
+	Config := smux.DefaultConfig()
+	Config.KeepAliveInterval = 0
+	err := smux.VerifyConfig(Config)
 	t.Log(err)
 	if err == nil {
 		t.Fatal(err)
 	}
 
-	config = DefaultConfig()
-	config.KeepAliveInterval = 10
-	config.KeepAliveTimeout = 5
-	err = VerifyConfig(config)
+	Config = smux.DefaultConfig()
+	Config.KeepAliveInterval = 10
+	Config.KeepAliveTimeout = 5
+	err = smux.VerifyConfig(Config)
 	t.Log(err)
 	if err == nil {
 		t.Fatal(err)
 	}
 
-	config = DefaultConfig()
-	config.MaxFrameSize = 0
-	err = VerifyConfig(config)
+	Config = smux.DefaultConfig()
+	Config.MaxFrameSize = 0
+	err = smux.VerifyConfig(Config)
 	t.Log(err)
 	if err == nil {
 		t.Fatal(err)
 	}
 
-	config = DefaultConfig()
-	config.MaxFrameSize = 65536
-	err = VerifyConfig(config)
+	Config = smux.DefaultConfig()
+	Config.MaxFrameSize = 65536
+	err = smux.VerifyConfig(Config)
 	t.Log(err)
 	if err == nil {
 		t.Fatal(err)
 	}
 
-	config = DefaultConfig()
-	config.MaxReceiveBuffer = 0
-	err = VerifyConfig(config)
+	Config = smux.DefaultConfig()
+	Config.MaxReceiveBuffer = 0
+	err = smux.VerifyConfig(Config)
 	t.Log(err)
 	if err == nil {
 		t.Fatal(err)
 	}
 
-	config = DefaultConfig()
-	config.MaxStreamBuffer = 0
-	err = VerifyConfig(config)
+	Config = smux.DefaultConfig()
+	Config.MaxStreamBuffer = 0
+	err = smux.VerifyConfig(Config)
 	t.Log(err)
 	if err == nil {
 		t.Fatal(err)
 	}
 
-	config = DefaultConfig()
-	config.MaxStreamBuffer = 100
-	config.MaxReceiveBuffer = 99
-	err = VerifyConfig(config)
+	Config = smux.DefaultConfig()
+	Config.MaxStreamBuffer = 100
+	Config.MaxReceiveBuffer = 99
+	err = smux.VerifyConfig(Config)
 	t.Log(err)
 	if err == nil {
 		t.Fatal(err)
 	}
 
 	var bts buffer
-	if _, err := Server(&bts, config); err == nil {
-		t.Fatal("server started with wrong config")
+	if _, err := smux.Server(&bts, Config); err == nil {
+		t.Fatal("server started with wrong Config")
 	}
 
-	if _, err := Client(&bts, config); err == nil {
-		t.Fatal("client started with wrong config")
+	if _, err := smux.Client(&bts, Config); err == nil {
+		t.Fatal("client started with wrong Config")
 	}
 }

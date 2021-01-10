@@ -1,4 +1,4 @@
-package smux
+package gfsmux_test
 
 import (
 	"bytes"
@@ -15,6 +15,9 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	smux "go.gridfinity.dev/gfsmux"
+	u "go.gridfinity.dev/leaktestfe"
 )
 
 func init() {
@@ -25,30 +28,30 @@ func init() {
 
 // setupServer starts new server listening on a random localhost port and
 // returns address of the server, function to stop the server, new client
-// connection to this server or an error.
+// Connection to this server or an error.
 func setupServer(tb testing.TB) (addr string, stopfunc func(), client net.Conn, err error) {
 	ln, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
 		return "", nil, nil, err
 	}
 	go func() {
-		conn, err := ln.Accept()
+		Conn, err := ln.Accept()
 		if err != nil {
 			return
 		}
-		go handleConnection(conn)
+		go handleConnection(Conn)
 	}()
 	addr = ln.Addr().String()
-	conn, err := net.Dial("tcp", addr)
+	Conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		ln.Close()
 		return "", nil, nil, err
 	}
-	return ln.Addr().String(), func() { ln.Close() }, conn, nil
+	return ln.Addr().String(), func() { ln.Close() }, Conn, nil
 }
 
-func handleConnection(conn net.Conn) {
-	session, _ := Server(conn, nil)
+func handleConnection(Conn net.Conn) {
+	session, _ := smux.Server(Conn, nil)
 	for {
 		if stream, err := session.AcceptStream(); err == nil {
 			go func(s io.ReadWriteCloser) {
@@ -69,32 +72,32 @@ func handleConnection(conn net.Conn) {
 
 // setupServer starts new server listening on a random localhost port and
 // returns address of the server, function to stop the server, new client
-// connection to this server or an error.
+// Connection to this server or an error.
 func setupServerV2(tb testing.TB) (addr string, stopfunc func(), client net.Conn, err error) {
 	ln, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
 		return "", nil, nil, err
 	}
 	go func() {
-		conn, err := ln.Accept()
+		Conn, err := ln.Accept()
 		if err != nil {
 			return
 		}
-		go handleConnectionV2(conn)
+		go handleConnectionV2(Conn)
 	}()
 	addr = ln.Addr().String()
-	conn, err := net.Dial("tcp", addr)
+	Conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		ln.Close()
 		return "", nil, nil, err
 	}
-	return ln.Addr().String(), func() { ln.Close() }, conn, nil
+	return ln.Addr().String(), func() { ln.Close() }, Conn, nil
 }
 
-func handleConnectionV2(conn net.Conn) {
-	config := DefaultConfig()
-	config.Version = 2
-	session, _ := Server(conn, config)
+func handleConnectionV2(Conn net.Conn) {
+	Config := smux.DefaultConfig()
+	Config.Version = 2
+	session, _ := smux.Server(Conn, Config)
 	for {
 		if stream, err := session.AcceptStream(); err == nil {
 			go func(s io.ReadWriteCloser) {
@@ -114,12 +117,13 @@ func handleConnectionV2(conn net.Conn) {
 }
 
 func TestEcho(t *testing.T) {
+	defer u.Leakplug(t)
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	stream, _ := session.OpenStream()
 	const N = 100
 	buf := make([]byte, 10)
@@ -142,6 +146,7 @@ func TestEcho(t *testing.T) {
 }
 
 func TestWriteTo(t *testing.T) {
+	defer u.Leakplug(t)
 	const N = 1 << 20
 	// server
 	ln, err := net.Listen("tcp", "localhost:0")
@@ -151,11 +156,11 @@ func TestWriteTo(t *testing.T) {
 	defer ln.Close()
 
 	go func() {
-		conn, err := ln.Accept()
+		Conn, err := ln.Accept()
 		if err != nil {
 			return
 		}
-		session, _ := Server(conn, nil)
+		session, _ := smux.Server(Conn, nil)
 		for {
 			if stream, err := session.AcceptStream(); err == nil {
 				go func(s io.ReadWriteCloser) {
@@ -182,14 +187,14 @@ func TestWriteTo(t *testing.T) {
 	}()
 
 	addr := ln.Addr().String()
-	conn, err := net.Dial("tcp", addr)
+	Conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer conn.Close()
+	defer Conn.Close()
 
 	// client
-	session, _ := Client(conn, nil)
+	session, _ := smux.Client(Conn, nil)
 	stream, _ := session.OpenStream()
 	sndbuf := make([]byte, N)
 	for i := range sndbuf {
@@ -214,8 +219,9 @@ func TestWriteTo(t *testing.T) {
 }
 
 func TestWriteToV2(t *testing.T) {
-	config := DefaultConfig()
-	config.Version = 2
+	defer u.Leakplug(t)
+	Config := smux.DefaultConfig()
+	Config.Version = 2
 	const N = 1 << 20
 	// server
 	ln, err := net.Listen("tcp", "localhost:0")
@@ -225,11 +231,11 @@ func TestWriteToV2(t *testing.T) {
 	defer ln.Close()
 
 	go func() {
-		conn, err := ln.Accept()
+		Conn, err := ln.Accept()
 		if err != nil {
 			return
 		}
-		session, _ := Server(conn, config)
+		session, _ := smux.Server(Conn, Config)
 		for {
 			if stream, err := session.AcceptStream(); err == nil {
 				go func(s io.ReadWriteCloser) {
@@ -256,14 +262,14 @@ func TestWriteToV2(t *testing.T) {
 	}()
 
 	addr := ln.Addr().String()
-	conn, err := net.Dial("tcp", addr)
+	Conn, err := net.Dial("tcp", addr)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer conn.Close()
+	defer Conn.Close()
 
 	// client
-	session, _ := Client(conn, config)
+	session, _ := smux.Client(Conn, Config)
 	stream, _ := session.OpenStream()
 	sndbuf := make([]byte, N)
 	for i := range sndbuf {
@@ -288,6 +294,7 @@ func TestWriteToV2(t *testing.T) {
 }
 
 func TestGetDieCh(t *testing.T) {
+	defer u.Leakplug(t)
 	cs, ss, err := getSmuxStreamPair()
 	if err != nil {
 		t.Fatal(err)
@@ -305,12 +312,13 @@ func TestGetDieCh(t *testing.T) {
 }
 
 func TestSpeed(t *testing.T) {
+	defer u.Leakplug(t)
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	stream, _ := session.OpenStream()
 	t.Log(stream.LocalAddr(), stream.RemoteAddr())
 
@@ -345,12 +353,13 @@ func TestSpeed(t *testing.T) {
 }
 
 func TestParallel(t *testing.T) {
+	defer u.Leakplug(t)
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 
 	par := 1000
 	messages := 100
@@ -358,7 +367,7 @@ func TestParallel(t *testing.T) {
 	wg.Add(par)
 	for i := 0; i < par; i++ {
 		stream, _ := session.OpenStream()
-		go func(s *Stream) {
+		go func(s *smux.Stream) {
 			buf := make([]byte, 20)
 			for j := 0; j < messages; j++ {
 				msg := fmt.Sprintf("hello%v", j)
@@ -377,14 +386,15 @@ func TestParallel(t *testing.T) {
 }
 
 func TestParallelV2(t *testing.T) {
-	config := DefaultConfig()
-	config.Version = 2
+	defer u.Leakplug(t)
+	Config := smux.DefaultConfig()
+	Config.Version = 2
 	_, stop, cli, err := setupServerV2(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, config)
+	session, _ := smux.Client(cli, Config)
 
 	par := 1000
 	messages := 100
@@ -392,7 +402,7 @@ func TestParallelV2(t *testing.T) {
 	wg.Add(par)
 	for i := 0; i < par; i++ {
 		stream, _ := session.OpenStream()
-		go func(s *Stream) {
+		go func(s *smux.Stream) {
 			buf := make([]byte, 20)
 			for j := 0; j < messages; j++ {
 				msg := fmt.Sprintf("hello%v", j)
@@ -411,12 +421,13 @@ func TestParallelV2(t *testing.T) {
 }
 
 func TestCloseThenOpen(t *testing.T) {
+	defer u.Leakplug(t)
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	session.Close()
 	if _, err := session.OpenStream(); err == nil {
 		t.Fatal("opened after close")
@@ -424,12 +435,13 @@ func TestCloseThenOpen(t *testing.T) {
 }
 
 func TestSessionDoubleClose(t *testing.T) {
+	defer u.Leakplug(t)
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	session.Close()
 	if err := session.Close(); err == nil {
 		t.Fatal("session double close doesn't return error")
@@ -437,12 +449,13 @@ func TestSessionDoubleClose(t *testing.T) {
 }
 
 func TestStreamDoubleClose(t *testing.T) {
+	defer u.Leakplug(t)
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	stream, _ := session.OpenStream()
 	stream.Close()
 	if err := stream.Close(); err == nil {
@@ -452,14 +465,15 @@ func TestStreamDoubleClose(t *testing.T) {
 }
 
 func TestConcurrentClose(t *testing.T) {
+	defer u.Leakplug(t)
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	numStreams := 100
-	streams := make([]*Stream, 0, numStreams)
+	streams := make([]*smux.Stream, 0, numStreams)
 	var wg sync.WaitGroup
 	wg.Add(numStreams)
 	for i := 0; i < 100; i++ {
@@ -478,12 +492,13 @@ func TestConcurrentClose(t *testing.T) {
 }
 
 func TestTinyReadBuffer(t *testing.T) {
+	defer u.Leakplug(t)
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	stream, _ := session.OpenStream()
 	const N = 100
 	tinybuf := make([]byte, 6)
@@ -514,12 +529,13 @@ func TestTinyReadBuffer(t *testing.T) {
 }
 
 func TestIsClose(t *testing.T) {
+	defer u.Leakplug(t)
 	_, stop, cli, err := setupServer(t)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	session.Close()
 	if !session.IsClosed() {
 		t.Fatal("still open after close")
@@ -527,6 +543,7 @@ func TestIsClose(t *testing.T) {
 }
 
 func TestKeepAliveTimeout(t *testing.T) {
+	defer u.Leakplug(t)
 	ln, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
 		t.Fatal(err)
@@ -542,10 +559,10 @@ func TestKeepAliveTimeout(t *testing.T) {
 	}
 	defer cli.Close()
 
-	config := DefaultConfig()
-	config.KeepAliveInterval = time.Second
-	config.KeepAliveTimeout = 2 * time.Second
-	session, _ := Client(cli, config)
+	Config := smux.DefaultConfig()
+	Config.KeepAliveInterval = time.Second
+	Config.KeepAliveTimeout = 2 * time.Second
+	session, _ := smux.Client(cli, Config)
 	time.Sleep(3 * time.Second)
 	if !session.IsClosed() {
 		t.Fatal("keepalive-timeout failed")
@@ -563,6 +580,7 @@ func (c *blockWriteConn) Write(b []byte) (n int, err error) {
 }
 
 func TestKeepAliveBlockWriteTimeout(t *testing.T) {
+	defer u.Leakplug(t)
 	ln, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
 		t.Fatal(err)
@@ -577,13 +595,13 @@ func TestKeepAliveBlockWriteTimeout(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer cli.Close()
-	//when writeFrame block, keepalive in old version never timeout
+	// when WriteFrame block, keepalive in old version never timeout
 	blockWriteCli := &blockWriteConn{cli}
 
-	config := DefaultConfig()
-	config.KeepAliveInterval = time.Second
-	config.KeepAliveTimeout = 2 * time.Second
-	session, _ := Client(blockWriteCli, config)
+	Config := smux.DefaultConfig()
+	Config.KeepAliveInterval = time.Second
+	Config.KeepAliveTimeout = 2 * time.Second
+	session, _ := smux.Client(blockWriteCli, Config)
 	time.Sleep(3 * time.Second)
 	if !session.IsClosed() {
 		t.Fatal("keepalive-timeout failed")
@@ -598,12 +616,12 @@ func TestServerEcho(t *testing.T) {
 	defer ln.Close()
 	go func() {
 		err := func() error {
-			conn, err := ln.Accept()
+			Conn, err := ln.Accept()
 			if err != nil {
 				return err
 			}
-			defer conn.Close()
-			session, err := Server(conn, nil)
+			defer Conn.Close()
+			session, err := smux.Server(Conn, nil)
 			if err != nil {
 				return err
 			}
@@ -637,7 +655,7 @@ func TestServerEcho(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer cli.Close()
-	if session, err := Client(cli, nil); err == nil {
+	if session, err := smux.Client(cli, nil); err == nil {
 		if stream, err := session.AcceptStream(); err == nil {
 			buf := make([]byte, 65536)
 			for {
@@ -661,7 +679,7 @@ func TestSendWithoutRecv(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	stream, _ := session.OpenStream()
 	const N = 100
 	for i := 0; i < N; i++ {
@@ -681,7 +699,7 @@ func TestWriteAfterClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	stream, _ := session.OpenStream()
 	stream.Close()
 	if _, err := stream.Write([]byte("write after close")); err == nil {
@@ -695,7 +713,7 @@ func TestReadStreamAfterSessionClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	stream, _ := session.OpenStream()
 	session.Close()
 	buf := make([]byte, 10)
@@ -712,11 +730,11 @@ func TestWriteStreamAfterConnectionClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	stream, _ := session.OpenStream()
-	session.conn.Close()
-	if _, err := stream.Write([]byte("write after connection close")); err == nil {
-		t.Fatal("write after connection close failed")
+	session.Conn.Close()
+	if _, err := stream.Write([]byte("write after Connection close")); err == nil {
+		t.Fatal("write after Connection close failed")
 	}
 }
 
@@ -726,7 +744,7 @@ func TestNumStreamAfterClose(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	if _, err := session.OpenStream(); err == nil {
 		if session.NumStreams() != 1 {
 			t.Fatal("wrong number of streams after opened")
@@ -748,11 +766,11 @@ func TestRandomFrame(t *testing.T) {
 	}
 	defer stop()
 	// pure random
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	for i := 0; i < 100; i++ {
 		rnd := make([]byte, rand.Uint32()%1024)
 		io.ReadFull(crand.Reader, rnd)
-		session.conn.Write(rnd)
+		session.Conn.Write(rnd)
 	}
 	cli.Close()
 
@@ -761,10 +779,10 @@ func TestRandomFrame(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	session, _ = Client(cli, nil)
+	session, _ = smux.Client(cli, nil)
 	for i := 0; i < 100; i++ {
-		f := newFrame(1, cmdSYN, 1000)
-		session.writeFrame(f)
+		f := smux.NewFrame(1, smux.CmdSyn, 1000)
+		session.WriteFrame(f)
 	}
 	cli.Close()
 
@@ -773,23 +791,23 @@ func TestRandomFrame(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	allcmds := []byte{cmdSYN, cmdFIN, cmdPSH, cmdNOP}
-	session, _ = Client(cli, nil)
+	allcmds := []byte{smux.CmdSyn, smux.CmdFin, smux.CmdPsh, smux.CmdNop}
+	session, _ = smux.Client(cli, nil)
 	for i := 0; i < 100; i++ {
-		f := newFrame(1, allcmds[rand.Int()%len(allcmds)], rand.Uint32())
-		session.writeFrame(f)
+		f := smux.NewFrame(1, allcmds[rand.Int()%len(allcmds)], rand.Uint32())
+		session.WriteFrame(f)
 	}
 	cli.Close()
 
-	// random cmds & sids
+	// random cmds & Sids
 	cli, err = net.Dial("tcp", addr)
 	if err != nil {
 		t.Fatal(err)
 	}
-	session, _ = Client(cli, nil)
+	session, _ = smux.Client(cli, nil)
 	for i := 0; i < 100; i++ {
-		f := newFrame(1, byte(rand.Uint32()), rand.Uint32())
-		session.writeFrame(f)
+		f := smux.NewFrame(1, byte(rand.Uint32()), rand.Uint32())
+		session.WriteFrame(f)
 	}
 	cli.Close()
 
@@ -798,11 +816,11 @@ func TestRandomFrame(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	session, _ = Client(cli, nil)
+	session, _ = smux.Client(cli, nil)
 	for i := 0; i < 100; i++ {
-		f := newFrame(1, byte(rand.Uint32()), rand.Uint32())
-		f.ver = byte(rand.Uint32())
-		session.writeFrame(f)
+		f := smux.NewFrame(1, byte(rand.Uint32()), rand.Uint32())
+		f.Ver = byte(rand.Uint32())
+		session.WriteFrame(f)
 	}
 	cli.Close()
 
@@ -811,34 +829,34 @@ func TestRandomFrame(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	session, _ = Client(cli, nil)
+	session, _ = smux.Client(cli, nil)
 
-	f := newFrame(1, byte(rand.Uint32()), rand.Uint32())
+	f := smux.NewFrame(1, byte(rand.Uint32()), rand.Uint32())
 	rnd := make([]byte, rand.Uint32()%1024)
 	io.ReadFull(crand.Reader, rnd)
-	f.data = rnd
+	f.Data = rnd
 
-	buf := make([]byte, headerSize+len(f.data))
-	buf[0] = f.ver
-	buf[1] = f.cmd
+	buf := make([]byte, smux.HeaderSize+len(f.Data))
+	buf[0] = f.Ver
+	buf[1] = f.Cmd
 	binary.LittleEndian.PutUint16(buf[2:], uint16(len(rnd)+1)) /// incorrect size
-	binary.LittleEndian.PutUint32(buf[4:], f.sid)
-	copy(buf[headerSize:], f.data)
+	binary.LittleEndian.PutUint32(buf[4:], f.Sid)
+	copy(buf[smux.HeaderSize:], f.Data)
 
-	session.conn.Write(buf)
+	session.Conn.Write(buf)
 	cli.Close()
 
-	// writeFrame after die
+	// WriteFrame after die
 	cli, err = net.Dial("tcp", addr)
 	if err != nil {
 		t.Fatal(err)
 	}
-	session, _ = Client(cli, nil)
-	//close first
+	session, _ = smux.Client(cli, nil)
+	// close first
 	session.Close()
 	for i := 0; i < 100; i++ {
-		f := newFrame(1, byte(rand.Uint32()), rand.Uint32())
-		session.writeFrame(f)
+		f := smux.NewFrame(1, byte(rand.Uint32()), rand.Uint32())
+		session.WriteFrame(f)
 	}
 }
 
@@ -849,25 +867,25 @@ func TestWriteFrameInternal(t *testing.T) {
 	}
 	defer stop()
 	// pure random
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	for i := 0; i < 100; i++ {
 		rnd := make([]byte, rand.Uint32()%1024)
 		io.ReadFull(crand.Reader, rnd)
-		session.conn.Write(rnd)
+		session.Conn.Write(rnd)
 	}
 	cli.Close()
 
-	// writeFrame after die
+	// WriteFrame after die
 	cli, err = net.Dial("tcp", addr)
 	if err != nil {
 		t.Fatal(err)
 	}
-	session, _ = Client(cli, nil)
-	//close first
+	session, _ = smux.Client(cli, nil)
+	// close first
 	session.Close()
 	for i := 0; i < 100; i++ {
-		f := newFrame(1, byte(rand.Uint32()), rand.Uint32())
-		session.writeFrameInternal(f, time.After(session.config.KeepAliveTimeout), 0)
+		f := smux.NewFrame(1, byte(rand.Uint32()), rand.Uint32())
+		session.WriteFrameInternal(f, time.After(session.Config.KeepAliveTimeout), 0)
 	}
 
 	// random cmds
@@ -875,20 +893,30 @@ func TestWriteFrameInternal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	allcmds := []byte{cmdSYN, cmdFIN, cmdPSH, cmdNOP}
-	session, _ = Client(cli, nil)
+	allcmds := []byte{smux.CmdSyn, smux.CmdFin, smux.CmdPsh, smux.CmdNop}
+	session, _ = smux.Client(cli, nil)
 	for i := 0; i < 100; i++ {
-		f := newFrame(1, allcmds[rand.Int()%len(allcmds)], rand.Uint32())
-		session.writeFrameInternal(f, time.After(session.config.KeepAliveTimeout), 0)
+		f := smux.NewFrame(1, allcmds[rand.Int()%len(allcmds)], rand.Uint32())
+		session.WriteFrameInternal(f, time.After(session.Config.KeepAliveTimeout), 0)
 	}
-	//deadline occur
+	// deadline occur
 	{
 		c := make(chan time.Time)
 		close(c)
-		f := newFrame(1, allcmds[rand.Int()%len(allcmds)], rand.Uint32())
-		_, err := session.writeFrameInternal(f, c, 0)
+		f := smux.NewFrame(1, allcmds[rand.Int()%len(allcmds)], rand.Uint32())
+		_, err := session.WriteFrameInternal(f, c, 0)
 		if !strings.Contains(err.Error(), "timeout") {
 			t.Fatal("write frame with deadline failed", err)
+		}
+		netErr, ok := err.(net.Error)
+		if !ok {
+			t.Fatal("expected net.Error for timeout")
+		}
+		if netErr.Timeout() == false {
+			t.Fatal("expected Timeout() to be true on timeout error ", err)
+		}
+		if netErr.Temporary() == false {
+			t.Fatal("expected Temporary() to be true on timeout error", err)
 		}
 	}
 	cli.Close()
@@ -898,22 +926,22 @@ func TestWriteFrameInternal(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		config := DefaultConfig()
-		config.KeepAliveInterval = time.Second
-		config.KeepAliveTimeout = 2 * time.Second
-		session, _ = Client(&blockWriteConn{cli}, config)
-		f := newFrame(1, byte(rand.Uint32()), rand.Uint32())
+		Config := smux.DefaultConfig()
+		Config.KeepAliveInterval = time.Second
+		Config.KeepAliveTimeout = 2 * time.Second
+		session, _ = smux.Client(&blockWriteConn{cli}, Config)
+		f := smux.NewFrame(1, byte(rand.Uint32()), rand.Uint32())
 		c := make(chan time.Time)
 		go func() {
-			//die first, deadline second, better for coverage
+			// die first, deadline second, better for coverage
 			time.Sleep(time.Second)
 			session.Close()
 			time.Sleep(time.Second)
 			close(c)
 		}()
-		_, err = session.writeFrameInternal(f, c, 0)
+		_, err = session.WriteFrameInternal(f, c, 0)
 		if !strings.Contains(err.Error(), "closed pipe") {
-			t.Fatal("write frame with to closed conn failed", err)
+			t.Fatal("write frame with to closed Conn failed", err)
 		}
 	}
 }
@@ -924,7 +952,7 @@ func TestReadDeadline(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	stream, _ := session.OpenStream()
 	const N = 100
 	buf := make([]byte, 10)
@@ -951,7 +979,7 @@ func TestWriteDeadline(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	stream, _ := session.OpenStream()
 	buf := make([]byte, 10)
 	var writeErr error
@@ -973,7 +1001,7 @@ func BenchmarkAcceptClose(b *testing.B) {
 		b.Fatal(err)
 	}
 	defer stop()
-	session, _ := Client(cli, nil)
+	session, _ := smux.Client(cli, nil)
 	for i := 0; i < b.N; i++ {
 		if stream, err := session.OpenStream(); err == nil {
 			stream.Close()
@@ -982,6 +1010,7 @@ func BenchmarkAcceptClose(b *testing.B) {
 		}
 	}
 }
+
 func BenchmarkConnSmux(b *testing.B) {
 	cs, ss, err := getSmuxStreamPair()
 	if err != nil {
@@ -1002,21 +1031,21 @@ func BenchmarkConnTCP(b *testing.B) {
 	bench(b, cs, ss)
 }
 
-func getSmuxStreamPair() (*Stream, *Stream, error) {
+func getSmuxStreamPair() (*smux.Stream, *smux.Stream, error) {
 	c1, c2, err := getTCPConnectionPair()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	s, err := Server(c2, nil)
+	s, err := smux.Server(c2, nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	c, err := Client(c1, nil)
+	c, err := smux.Client(c1, nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	var ss *Stream
+	var ss *smux.Stream
 	done := make(chan error)
 	go func() {
 		var rerr error
@@ -1043,15 +1072,15 @@ func getTCPConnectionPair() (net.Conn, net.Conn, error) {
 	}
 	defer lst.Close()
 
-	var conn0 net.Conn
+	var Conn0 net.Conn
 	var err0 error
 	done := make(chan struct{})
 	go func() {
-		conn0, err0 = lst.Accept()
+		Conn0, err0 = lst.Accept()
 		close(done)
 	}()
 
-	conn1, err := net.Dial("tcp", lst.Addr().String())
+	Conn1, err := net.Dial("tcp", lst.Addr().String())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -1060,7 +1089,7 @@ func getTCPConnectionPair() (net.Conn, net.Conn, error) {
 	if err0 != nil {
 		return nil, nil, err0
 	}
-	return conn0, conn1, nil
+	return Conn0, Conn1, nil
 }
 
 func bench(b *testing.B, rd io.Reader, wr io.Writer) {

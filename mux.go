@@ -1,8 +1,8 @@
-// Package smux is a multiplexing library for Golang.
+// Package gfsmux is a multiplexing library for Golang.
 //
-// It relies on an underlying connection to provide reliability and ordering, such as TCP or KCP,
-// and provides stream-oriented multiplexing over a single channel.
-package smux
+// It relies on an underlying connection to provide reliability and ordering,
+// such as GFCP, and provides stream-oriented multiplexing over a single channel.
+package gfsmux // import "go.gridfinity.dev/gfsmux"
 
 import (
 	"errors"
@@ -40,7 +40,7 @@ type Config struct {
 	MaxStreamBuffer int
 }
 
-// DefaultConfig is used to return a default configuration
+// DefaultConfig is used to return a default Configuration
 func DefaultConfig() *Config {
 	return &Config{
 		Version:           1,
@@ -52,59 +52,59 @@ func DefaultConfig() *Config {
 	}
 }
 
-// VerifyConfig is used to verify the sanity of configuration
-func VerifyConfig(config *Config) error {
-	if !(config.Version == 1 || config.Version == 2) {
+// VerifyConfig is used to verify the sanity of Configuration
+func VerifyConfig(Config *Config) error {
+	if !(Config.Version == 1 || Config.Version == 2) {
 		return errors.New("unsupported protocol version")
 	}
-	if !config.KeepAliveDisabled {
-		if config.KeepAliveInterval == 0 {
+	if !Config.KeepAliveDisabled {
+		if Config.KeepAliveInterval == 0 {
 			return errors.New("keep-alive interval must be positive")
 		}
-		if config.KeepAliveTimeout < config.KeepAliveInterval {
+		if Config.KeepAliveTimeout < Config.KeepAliveInterval {
 			return fmt.Errorf("keep-alive timeout must be larger than keep-alive interval")
 		}
 	}
-	if config.MaxFrameSize <= 0 {
+	if Config.MaxFrameSize <= 0 {
 		return errors.New("max frame size must be positive")
 	}
-	if config.MaxFrameSize > 65535 {
+	if Config.MaxFrameSize > 65535 {
 		return errors.New("max frame size must not be larger than 65535")
 	}
-	if config.MaxReceiveBuffer <= 0 {
+	if Config.MaxReceiveBuffer <= 0 {
 		return errors.New("max receive buffer must be positive")
 	}
-	if config.MaxStreamBuffer <= 0 {
+	if Config.MaxStreamBuffer <= 0 {
 		return errors.New("max stream buffer must be positive")
 	}
-	if config.MaxStreamBuffer > config.MaxReceiveBuffer {
+	if Config.MaxStreamBuffer > Config.MaxReceiveBuffer {
 		return errors.New("max stream buffer must not be larger than max receive buffer")
 	}
-	if config.MaxStreamBuffer > math.MaxInt32 {
+	if Config.MaxStreamBuffer > math.MaxInt32 {
 		return errors.New("max stream buffer cannot be larger than 2147483647")
 	}
 	return nil
 }
 
-// Server is used to initialize a new server-side connection.
-func Server(conn io.ReadWriteCloser, config *Config) (*Session, error) {
-	if config == nil {
-		config = DefaultConfig()
+// Server is used to initialize a new server-side Connection.
+func Server(Conn io.ReadWriteCloser, Config *Config) (*Session, error) {
+	if Config == nil {
+		Config = DefaultConfig()
 	}
-	if err := VerifyConfig(config); err != nil {
+	if err := VerifyConfig(Config); err != nil {
 		return nil, err
 	}
-	return newSession(config, conn, false), nil
+	return newSession(Config, Conn, false), nil
 }
 
-// Client is used to initialize a new client-side connection.
-func Client(conn io.ReadWriteCloser, config *Config) (*Session, error) {
-	if config == nil {
-		config = DefaultConfig()
+// Client is used to initialize a new client-side Connection.
+func Client(Conn io.ReadWriteCloser, Config *Config) (*Session, error) {
+	if Config == nil {
+		Config = DefaultConfig()
 	}
 
-	if err := VerifyConfig(config); err != nil {
+	if err := VerifyConfig(Config); err != nil {
 		return nil, err
 	}
-	return newSession(config, conn, true), nil
+	return newSession(Config, Conn, true), nil
 }

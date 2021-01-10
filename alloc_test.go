@@ -1,12 +1,16 @@
-package smux
+package gfsmux_test
 
 import (
 	"math/rand"
 	"testing"
+
+	smux "go.gridfinity.dev/gfsmux"
+	u "go.gridfinity.dev/leaktestfe"
 )
 
 func TestAllocGet(t *testing.T) {
-	alloc := NewAllocator()
+	defer u.Leakplug(t)
+	alloc := smux.NewAllocator()
 	if alloc.Get(0) != nil {
 		t.Fatal(0)
 	}
@@ -37,7 +41,8 @@ func TestAllocGet(t *testing.T) {
 }
 
 func TestAllocPut(t *testing.T) {
-	alloc := NewAllocator()
+	defer u.Leakplug(t)
+	alloc := smux.NewAllocator()
 	if err := alloc.Put(nil); err == nil {
 		t.Fatal("put nil misbehavior")
 	}
@@ -59,7 +64,8 @@ func TestAllocPut(t *testing.T) {
 }
 
 func TestAllocPutThenGet(t *testing.T) {
-	alloc := NewAllocator()
+	defer u.Leakplug(t)
+	alloc := smux.NewAllocator()
 	data := alloc.Get(4)
 	alloc.Put(data)
 	newData := alloc.Get(4)
@@ -70,6 +76,6 @@ func TestAllocPutThenGet(t *testing.T) {
 
 func BenchmarkMSB(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		msb(rand.Int())
+		smux.Smsb(rand.Int())
 	}
 }
