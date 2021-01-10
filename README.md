@@ -2,8 +2,6 @@
 
 gfsmux: Efficient stream multiplexing for Go
 
----
-
 [![MITLicense](https://img.shields.io/badge/License-MIT-blue.svg)](https://gitlab.gridfinity.com/go/gfsmux/-/blob/master/LICENSE)
 [![GoVersion](https://img.shields.io/github/go-mod/go-version/gridfinity/goc25519sm.svg)](https://github.com/gridfinity/gfsmux/blob/master/go.mod)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/gridfinity/gfsmux)](https://pkg.go.dev/github.com/gridfinity/gfsmux)
