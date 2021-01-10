@@ -58,7 +58,7 @@ func (alloc *Allocator) Put(buf []byte) error {
 	return nil
 }
 
-// Msb return the pos of most significiant bit
+// Smsb returns the position of most significiant bit
 // http://supertech.csail.mit.edu/papers/debruijn.pdf
 func Smsb(size int) byte {
 	v := uint32(size)

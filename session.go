@@ -367,7 +367,7 @@ func (s *Session) recvLoop() {
 						return
 					}
 				}
-			case cmdUPD:
+			case CmdUpd:
 				if _, err := io.ReadFull(s.Conn, updHdr[:]); err == nil {
 					s.streamLock.Lock()
 					if stream, ok := s.streams[Sid]; ok {
@@ -502,7 +502,7 @@ func (s *Session) WriteFrame(f Frame) (n int, err error) {
 	return s.WriteFrameInternal(f, nil, 0)
 }
 
-// internal WriteFrame version to support deadline used in keepalive
+// WriteFrameInternal is to support deadline used in keepalive
 func (s *Session) WriteFrameInternal(f Frame, deadline <-chan time.Time, Prio uint64) (int, error) {
 	req := WriteRequest{
 		Prio:   Prio,

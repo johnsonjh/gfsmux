@@ -249,7 +249,7 @@ func (s *Stream) sendWindowUpdate(consumed uint32) error {
 		deadline = timer.C
 	}
 
-	frame := NewFrame(byte(s.sess.Config.Version), cmdUPD, s.id)
+	frame := NewFrame(byte(s.sess.Config.Version), CmdUpd, s.id)
 	var hdr updHeader
 	binary.LittleEndian.PutUint32(hdr[:], consumed)
 	binary.LittleEndian.PutUint32(hdr[4:], uint32(s.sess.Config.MaxStreamBuffer))

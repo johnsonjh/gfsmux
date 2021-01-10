@@ -5,20 +5,26 @@ import (
 	"fmt"
 )
 
-const ( // cmds
-	// protocol version 1:
-	CmdSyn byte = iota // stream open
-	CmdFin             // stream close, a.k.a EOF mark
-	CmdPsh             // data push
-	CmdNop             // no operation
+const ( // Commands:
+	// Protocol version 1
 
-	// protocol version 2 extra commands
-	// notify bytes consumed by remote peer-end
-	cmdUPD
+	// CmdSyn ... stream open
+	CmdSyn byte = iota
+	// CmdFin ... stream close, EOF
+	CmdFin
+	// CmdPsh ... push data
+	CmdPsh
+	// CmdNop ... noop
+	CmdNop
+
+	// Protocol version 2: new commands
+
+	// CmdUpd ... notify bytes consumed by remote peer-end
+	CmdUpd
 )
 
 const (
-	// data size of cmdUPD, format:
+	// data size of CmdUpd, format:
 	// |4B data consumed(ACK)| 4B window size(WINDOW) |
 	szCmdUPD = 8
 )
