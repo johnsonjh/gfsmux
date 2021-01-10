@@ -46,19 +46,19 @@ func TestAllocPut(t *testing.T) {
 	if err := alloc.Put(nil); err == nil {
 		t.Fatal("put nil misbehavior")
 	}
-	if err := alloc.Put(make([]byte, 3, 3)); err == nil {
+	if err := alloc.Put(make([]byte, 3)); err == nil {
 		t.Fatal("put elem:3 []bytes misbehavior")
 	}
-	if err := alloc.Put(make([]byte, 4, 4)); err != nil {
+	if err := alloc.Put(make([]byte, 4)); err != nil {
 		t.Fatal("put elem:4 []bytes misbehavior")
 	}
 	if err := alloc.Put(make([]byte, 1023, 1024)); err != nil {
 		t.Fatal("put elem:1024 []bytes misbehavior")
 	}
-	if err := alloc.Put(make([]byte, 65536, 65536)); err != nil {
+	if err := alloc.Put(make([]byte, 65536)); err != nil {
 		t.Fatal("put elem:65536 []bytes misbehavior")
 	}
-	if err := alloc.Put(make([]byte, 65537, 65537)); err == nil {
+	if err := alloc.Put(make([]byte, 65537)); err == nil {
 		t.Fatal("put elem:65537 []bytes misbehavior")
 	}
 }
