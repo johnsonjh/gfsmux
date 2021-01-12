@@ -2,7 +2,7 @@
 
 gfsmux: Efficient stream multiplexing for Go
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/76d9c10621c5416088f77658305f1357)](https://app.codacy.com/gh/gridfinity/gfsmux?utm_source=github.com&utm_medium=referral&utm_content=gridfinity/gfsmux&utm_campaign=Badge_Grade)
+[![CodacyBadge](https://api.codacy.com/project/badge/Grade/76d9c10621c5416088f77658305f1357)](https://app.codacy.com/gh/gridfinity/gfsmux?utm_source=github.com&utm_medium=referral&utm_content=gridfinity/gfsmux&utm_campaign=Badge_Grade)
 [![MITLicense](https://img.shields.io/badge/License-MIT-blue.svg)](https://gitlab.gridfinity.com/go/gfsmux/-/blob/master/LICENSE)
 [![GoVersion](https://img.shields.io/github/go-mod/go-version/gridfinity/goc25519sm.svg)](https://github.com/gridfinity/gfsmux/blob/master/go.mod)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/gridfinity/gfsmux)](https://pkg.go.dev/github.com/gridfinity/gfsmux)
@@ -10,7 +10,6 @@ gfsmux: Efficient stream multiplexing for Go
 [![LocCount](https://img.shields.io/tokei/lines/github/gridfinity/gfsmux.svg)](https://github.com/XAMPPRocky/tokei)
 [![GitHubCodeSize](https://img.shields.io/github/languages/code-size/gridfinity/gfsmux.svg)](https://github.com/gridfinity/gfsmux)
 [![CoverallBadge](https://coveralls.io/repos/github/gridfinity/gfsmux/badge.svg?branch=master)](https://coveralls.io/github/gridfinity/gfsmux?branch=master)
-[![CodacyBadge](https://api.codacy.com/project/badge/Grade/1554a9e30cff45aa80635c1e00dafa9e)](https://app.codacy.com/gh/gridfinity/gfsmux)
 [![LgtmAlerts](https://img.shields.io/lgtm/alerts/g/gridfinity/goc25519sm.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/gridfinity/goc25519sm/alerts/)
 [![CodeBeatadge](https://codebeat.co/badges/ff68217a-76ec-467c-8ecd-c49c4491c6ae)](https://codebeat.co/projects/github-com-gridfinity-gfsmux-master)
 [![CodeclimateMaintainability](https://api.codeclimate.com/v1/badges/bbc4379b8c69ca2693e6/maintainability)](https://codeclimate.com/github/gridfinity/gfsmux/maintainability)
