@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-const ( // Commands:
-	// Protocol version 1
+const (
+	// Protocol version 1: old commands
 
 	// CmdSyn ... stream open
 	CmdSyn byte = iota
@@ -39,7 +39,8 @@ const (
 	sizeOfCmd    = 1
 	sizeOfLength = 2
 	sizeOfSid    = 4
-	HeaderSize   = sizeOfVer + sizeOfCmd + sizeOfSid + sizeOfLength
+	// HeaderSize ...
+	HeaderSize = sizeOfVer + sizeOfCmd + sizeOfSid + sizeOfLength
 )
 
 // Frame defines a packet from or to be multiplexed into a single Connection
@@ -50,39 +51,71 @@ type Frame struct {
 	Data []byte
 }
 
-func NewFrame(Version, Cmd byte, Sid uint32) Frame {
+// NewFrame ...
+func NewFrame(
+	Version,
+	Cmd byte,
+	Sid uint32,
+) Frame {
 	return Frame{Ver: Version, Cmd: Cmd, Sid: Sid}
 }
 
 type rawHeader [HeaderSize]byte
 
-func (h rawHeader) Version() byte {
+func (
+	h rawHeader,
+) Version() byte {
 	return h[0]
 }
 
-func (h rawHeader) Cmd() byte {
+func (
+	h rawHeader,
+) Cmd() byte {
 	return h[1]
 }
 
-func (h rawHeader) Length() uint16 {
-	return binary.LittleEndian.Uint16(h[2:])
+func (
+	h rawHeader,
+) Length() uint16 {
+	return binary.LittleEndian.Uint16(
+		h[2:],
+	)
 }
 
-func (h rawHeader) StreamID() uint32 {
-	return binary.LittleEndian.Uint32(h[4:])
+func (
+	h rawHeader,
+) StreamID() uint32 {
+	return binary.LittleEndian.Uint32(
+		h[4:],
+	)
 }
 
-func (h rawHeader) String() string {
-	return fmt.Sprintf("Version:%d Cmd:%d StreamID:%d Length:%d",
-		h.Version(), h.Cmd(), h.StreamID(), h.Length())
+func (
+	h rawHeader,
+) String() string {
+	return fmt.Sprintf(
+		"Version:%d Cmd:%d StreamID:%d Length:%d",
+		h.Version(),
+		h.Cmd(),
+		h.StreamID(),
+		h.Length(),
+	)
 }
 
 type updHeader [szCmdUPD]byte
 
-func (h updHeader) Consumed() uint32 {
-	return binary.LittleEndian.Uint32(h[:])
+func (
+	h updHeader,
+) Consumed() uint32 {
+	return binary.LittleEndian.Uint32(
+		h[:],
+	)
 }
 
-func (h updHeader) Window() uint32 {
-	return binary.LittleEndian.Uint32(h[4:])
+func (
+	h updHeader,
+) Window() uint32 {
+	return binary.LittleEndian.Uint32(
+		h[4:],
+	)
 }

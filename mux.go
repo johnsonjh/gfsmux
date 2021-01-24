@@ -53,58 +53,102 @@ func DefaultConfig() *Config {
 }
 
 // VerifyConfig is used to verify the sanity of Configuration
-func VerifyConfig(Config *Config) error {
+func VerifyConfig(
+	Config *Config,
+) error {
 	if !(Config.Version == 1 || Config.Version == 2) {
-		return errors.New("unsupported protocol version")
+		return errors.New(
+			"unsupported protocol version",
+		)
 	}
 	if !Config.KeepAliveDisabled {
 		if Config.KeepAliveInterval == 0 {
-			return errors.New("keep-alive interval must be positive")
+			return errors.New(
+				"keep-alive interval must be positive",
+			)
 		}
 		if Config.KeepAliveTimeout < Config.KeepAliveInterval {
-			return fmt.Errorf("keep-alive timeout must be larger than keep-alive interval")
+			return fmt.Errorf(
+				"keep-alive timeout must be larger than keep-alive interval",
+			)
 		}
 	}
 	if Config.MaxFrameSize <= 0 {
-		return errors.New("max frame size must be positive")
+		return errors.New(
+			"max frame size must be positive",
+		)
 	}
 	if Config.MaxFrameSize > 65535 {
-		return errors.New("max frame size must not be larger than 65535")
+		return errors.New(
+			"max frame size must not be larger than 65535",
+		)
 	}
 	if Config.MaxReceiveBuffer <= 0 {
-		return errors.New("max receive buffer must be positive")
+		return errors.New(
+			"max receive buffer must be positive",
+		)
 	}
 	if Config.MaxStreamBuffer <= 0 {
-		return errors.New("max stream buffer must be positive")
+		return errors.New(
+			"max stream buffer must be positive",
+		)
 	}
 	if Config.MaxStreamBuffer > Config.MaxReceiveBuffer {
-		return errors.New("max stream buffer must not be larger than max receive buffer")
+		return errors.New(
+			"max stream buffer must not be larger than max receive buffer",
+		)
 	}
 	if Config.MaxStreamBuffer > math.MaxInt32 {
-		return errors.New("max stream buffer cannot be larger than 2147483647")
+		return errors.New(
+			"max stream buffer cannot be larger than 2147483647",
+		)
 	}
 	return nil
 }
 
 // Server is used to initialize a new server-side Connection.
-func Server(Conn io.ReadWriteCloser, Config *Config) (*Session, error) {
+func Server(
+	Conn io.ReadWriteCloser,
+	Config *Config,
+) (
+	*Session,
+	error,
+) {
 	if Config == nil {
 		Config = DefaultConfig()
 	}
-	if err := VerifyConfig(Config); err != nil {
+	if err := VerifyConfig(
+		Config,
+	); err != nil {
 		return nil, err
 	}
-	return newSession(Config, Conn, false), nil
+	return newSession(
+		Config,
+		Conn,
+		false,
+	), nil
 }
 
 // Client is used to initialize a new client-side Connection.
-func Client(Conn io.ReadWriteCloser, Config *Config) (*Session, error) {
+func Client(
+	Conn io.ReadWriteCloser,
+	Config *Config,
+) (
+	*Session,
+	error,
+) {
 	if Config == nil {
 		Config = DefaultConfig()
 	}
 
-	if err := VerifyConfig(Config); err != nil {
+	if err := VerifyConfig(
+		Config,
+	); err != nil {
 		return nil, err
 	}
-	return newSession(Config, Conn, true), nil
+	return newSession(
+		Config,
+		Conn,
+		true,
+	), nil
 }

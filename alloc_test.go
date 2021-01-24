@@ -8,74 +8,200 @@ import (
 	u "go.gridfinity.dev/leaktestfe"
 )
 
-func TestAllocGet(t *testing.T) {
-	defer u.Leakplug(t)
+func TestAllocGet(
+	t *testing.T,
+) {
+	defer u.Leakplug(
+		t,
+	)
 	alloc := smux.NewAllocator()
-	if alloc.Get(0) != nil {
-		t.Fatal(0)
+	if alloc.Get(
+		0,
+	) != nil {
+		t.Fatal(
+			0,
+		)
 	}
-	if len(alloc.Get(1)) != 1 {
-		t.Fatal(1)
+	if len(
+		alloc.Get(
+			1,
+		),
+	) != 1 {
+		t.Fatal(
+			1,
+		)
 	}
-	if len(alloc.Get(2)) != 2 {
-		t.Fatal(2)
+	if len(
+		alloc.Get(
+			2,
+		),
+	) != 2 {
+		t.Fatal(
+			2,
+		)
 	}
-	if len(alloc.Get(3)) != 3 || cap(alloc.Get(3)) != 4 {
-		t.Fatal(3)
+	if len(
+		alloc.Get(
+			3,
+		),
+	) != 3 || cap(
+		alloc.Get(
+			3,
+		),
+	) != 4 {
+		t.Fatal(
+			3,
+		)
 	}
-	if len(alloc.Get(4)) != 4 {
-		t.Fatal(4)
+	if len(
+		alloc.Get(
+			4,
+		),
+	) != 4 {
+		t.Fatal(
+			4,
+		)
 	}
-	if len(alloc.Get(1023)) != 1023 || cap(alloc.Get(1023)) != 1024 {
-		t.Fatal(1023)
+	if len(
+		alloc.Get(
+			1023,
+		),
+	) != 1023 || cap(
+		alloc.Get(
+			1023,
+		),
+	) != 1024 {
+		t.Fatal(
+			1023,
+		)
 	}
-	if len(alloc.Get(1024)) != 1024 {
-		t.Fatal(1024)
+	if len(
+		alloc.Get(
+			1024,
+		),
+	) != 1024 {
+		t.Fatal(
+			1024,
+		)
 	}
-	if len(alloc.Get(65536)) != 65536 {
-		t.Fatal(65536)
+	if len(
+		alloc.Get(
+			65536,
+		),
+	) != 65536 {
+		t.Fatal(
+			65536,
+		)
 	}
-	if alloc.Get(65537) != nil {
-		t.Fatal(65537)
+	if alloc.Get(
+		65537,
+	) != nil {
+		t.Fatal(
+			65537,
+		)
 	}
 }
 
-func TestAllocPut(t *testing.T) {
-	defer u.Leakplug(t)
+func TestAllocPut(
+	t *testing.T,
+) {
+	defer u.Leakplug(
+		t,
+	)
 	alloc := smux.NewAllocator()
-	if err := alloc.Put(nil); err == nil {
-		t.Fatal("put nil misbehavior")
+	if err := alloc.Put(
+		nil,
+	); err == nil {
+		t.Fatal(
+			"put nil misbehavior",
+		)
 	}
-	if err := alloc.Put(make([]byte, 3)); err == nil {
-		t.Fatal("put elem:3 []bytes misbehavior")
+	if err := alloc.Put(
+		make(
+			[]byte,
+			3,
+		),
+	); err == nil {
+		t.Fatal(
+			"put elem:3 []bytes misbehavior",
+		)
 	}
-	if err := alloc.Put(make([]byte, 4)); err != nil {
-		t.Fatal("put elem:4 []bytes misbehavior")
+	if err := alloc.Put(
+		make(
+			[]byte,
+			4,
+		),
+	); err != nil {
+		t.Fatal(
+			"put elem:4 []bytes misbehavior",
+		)
 	}
-	if err := alloc.Put(make([]byte, 1023, 1024)); err != nil {
-		t.Fatal("put elem:1024 []bytes misbehavior")
+	if err := alloc.Put(
+		make(
+			[]byte,
+			1023,
+			1024,
+		),
+	); err != nil {
+		t.Fatal(
+			"put elem:1024 []bytes misbehavior",
+		)
 	}
-	if err := alloc.Put(make([]byte, 65536)); err != nil {
-		t.Fatal("put elem:65536 []bytes misbehavior")
+	if err := alloc.Put(
+		make(
+			[]byte,
+			65536,
+		),
+	); err != nil {
+		t.Fatal(
+			"put elem:65536 []bytes misbehavior",
+		)
 	}
-	if err := alloc.Put(make([]byte, 65537)); err == nil {
-		t.Fatal("put elem:65537 []bytes misbehavior")
+	if err := alloc.Put(
+		make(
+			[]byte,
+			65537,
+		),
+	); err == nil {
+		t.Fatal(
+			"put elem:65537 []bytes misbehavior",
+		)
 	}
 }
 
-func TestAllocPutThenGet(t *testing.T) {
-	defer u.Leakplug(t)
+func TestAllocPutThenGet(
+	t *testing.T,
+) {
+	defer u.Leakplug(
+		t,
+	)
 	alloc := smux.NewAllocator()
-	data := alloc.Get(4)
-	alloc.Put(data)
-	newData := alloc.Get(4)
-	if cap(data) != cap(newData) {
-		t.Fatal("different cap while alloc.Get()")
+	data := alloc.Get(
+		4,
+	)
+	alloc.Put(
+		data,
+	)
+	newData := alloc.Get(
+		4,
+	)
+	if cap(
+		data,
+	) != cap(
+		newData,
+	) {
+		t.Fatal(
+			"different cap while alloc.Get()",
+		)
 	}
 }
 
-func BenchmarkMSB(b *testing.B) {
+func BenchmarkMSB(
+	b *testing.B,
+) {
 	for i := 0; i < b.N; i++ {
-		smux.Smsb(rand.Int())
+		smux.Smsb(
+			rand.Int(),
+		)
 	}
 }

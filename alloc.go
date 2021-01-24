@@ -23,24 +23,40 @@ type Allocator struct {
 // the waste(memory fragmentation) of space allocation is guaranteed to be
 // no more than 50%.
 func NewAllocator() *Allocator {
-	alloc := new(Allocator)
-	alloc.buffers = make([]sync.Pool, 17) // 1B -> 64K
+	alloc := new(
+		Allocator,
+	)
+	alloc.buffers = make(
+		[]sync.Pool,
+		17,
+	) // 1B -> 64K
 	for k := range alloc.buffers {
 		i := k
 		alloc.buffers[k].New = func() interface{} {
-			return make([]byte, 1<<uint32(i))
+			return make(
+				[]byte,
+				1<<uint32(
+					i,
+				),
+			)
 		}
 	}
 	return alloc
 }
 
 // Get a []byte from pool with most appropriate cap
-func (alloc *Allocator) Get(size int) []byte {
+func (
+	alloc *Allocator,
+) Get(
+	size int,
+) []byte {
 	if size <= 0 || size > 65536 {
 		return nil
 	}
 
-	bits := Smsb(size)
+	bits := Smsb(
+		size,
+	)
 	if size == 1<<bits {
 		return alloc.buffers[bits].Get().([]byte)[:size]
 	}
@@ -49,18 +65,38 @@ func (alloc *Allocator) Get(size int) []byte {
 
 // Put returns a []byte to pool for future use,
 // which the cap must be exactly 2^n
-func (alloc *Allocator) Put(buf []byte) error {
-	bits := Smsb(cap(buf))
-	if cap(buf) == 0 || cap(buf) > 65536 || cap(buf) != 1<<bits {
-		return errors.New("allocator Put() incorrect buffer size")
+func (
+	alloc *Allocator,
+) Put(
+	buf []byte,
+) error {
+	bits := Smsb(
+		cap(
+			buf,
+		),
+	)
+	if cap(
+		buf,
+	) == 0 || cap(
+		buf,
+	) > 65536 || cap(
+		buf,
+	) != 1<<bits {
+		return errors.New(
+			"allocator Put() incorrect buffer size",
+		)
 	}
-	alloc.buffers[bits].Put(buf)
+	alloc.buffers[bits].Put(
+		buf,
+	)
 	return nil
 }
 
 // Smsb returns the position of most significiant bit
 // http://supertech.csail.mit.edu/papers/debruijn.pdf
-func Smsb(size int) byte {
+func Smsb(
+	size int,
+) byte {
 	v := uint32(size)
 	v |= v >> 1
 	v |= v >> 2
