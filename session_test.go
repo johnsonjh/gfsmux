@@ -350,10 +350,10 @@ func TestWriteTo(
 		)
 	}
 
-	if bytes.Compare(
+	if !bytes.Equal(
 		sndbuf,
 		rcvbuf.Bytes(),
-	) != 0 {
+	) {
 		t.Fatal(
 			"mismatched echo bytes",
 		)
@@ -475,10 +475,10 @@ func TestWriteToV2(
 		)
 	}
 
-	if bytes.Compare(
+	if !bytes.Equal(
 		sndbuf,
 		rcvbuf.Bytes(),
-	) != 0 {
+	) {
 		t.Fatal(
 			"mismatched echo bytes",
 		)
