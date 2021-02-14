@@ -46,4 +46,3 @@ gfsmux: Efficient stream multiplexing for Go
 ## License
 
 - [The MIT License](https://tldrlegal.com/license/mit-license)
-
