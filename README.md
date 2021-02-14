@@ -24,7 +24,6 @@ gfsmux: Efficient stream multiplexing for Go
 ### Source Code
 
 - [Gridfinity GitLab](https://gitlab.gridfinity.com/go/gfsmux)
-- [SourceHut Git](https://git.sr.ht/~trn/gfsmux)
 - [GitHub](https://github.com/gridfinity/gfsmux)
 
 ## Issue Tracking
@@ -47,3 +46,4 @@ gfsmux: Efficient stream multiplexing for Go
 ## License
 
 - [The MIT License](https://tldrlegal.com/license/mit-license)
+
