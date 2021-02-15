@@ -18,6 +18,8 @@ github.com/stretchr/testify v1.7.1-0.20210116013205-6990a05d54c2/go.mod h1:6Fq8o
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 go.gridfinity.dev/leaktestfe v0.0.0-20210214173048-0c6aeab8cbb4 h1:NR9sJ7dCeZIKxFIlbs5XeuqjUxzYnidYzQWQtxAetbc=
 go.gridfinity.dev/leaktestfe v0.0.0-20210214173048-0c6aeab8cbb4/go.mod h1:VJXzGaeZbEh7PndKlH+Qb0AkVc9Utx0B0hSWOXuV1zg=
+go.gridfinity.dev/leaktestfe v0.0.0-20210215130230-ae7c71425363 h1:DUTQl6xE+s6CBMEfvR0586LQpCt6Tw2KxNmW11kzMxs=
+go.gridfinity.dev/leaktestfe v0.0.0-20210215130230-ae7c71425363/go.mod h1:VJXzGaeZbEh7PndKlH+Qb0AkVc9Utx0B0hSWOXuV1zg=
 go.uber.org/goleak v1.1.11-0.20200902203756-89d54f0adef2 h1:D3+QcEc3tZiAP0rCkIWJM08hyILg8Sc0ZDeSCfVELbI=
 go.uber.org/goleak v1.1.11-0.20200902203756-89d54f0adef2/go.mod h1:8a7PlsEVH3e/a/GLqe5IIrQx6GzcnRmZEufDUTk4A7A=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
