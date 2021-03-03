@@ -1,4 +1,4 @@
-package gfsmux // import "go.gridfinity.dev/gfsmux"
+package gfsmux
 
 import (
 	"encoding/binary"

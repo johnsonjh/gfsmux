@@ -2,7 +2,7 @@
 //
 // It relies on an underlying connection to provide reliability and ordering,
 // such as GFCP, and provides stream-oriented multiplexing over a single channel.
-package gfsmux // import "go.gridfinity.dev/gfsmux"
+package gfsmux
 
 import (
 	"errors"

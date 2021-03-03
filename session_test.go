@@ -16,8 +16,8 @@ import (
 	"testing"
 	"time"
 
-	smux "go.gridfinity.dev/gfsmux"
-	u "go.gridfinity.dev/leaktestfe"
+	smux "github.com/johnsonjh/gfsmux"
+	u "github.com/johnsonjh/leaktestfe"
 )
 
 func init() {
