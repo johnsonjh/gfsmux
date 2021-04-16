@@ -5,7 +5,7 @@ name = "go"
 enabled = true
 
   [analyzers.meta]
-  import_paths = ["github.com/gridfinity/gfsmux"]
+  import_paths = ["github.com/johnsonjh/gfsmux"]
 
 [[analyzers]]
 name = "test-coverage"
@@ -17,22 +17,6 @@ enabled = true
 
 [[analyzers]]
 name = "secrets"
-enabled = true
-
-[[transformers]]
-name = "rubocop"
-enabled = true
-
-[[transformers]]
-name = "black"
-enabled = true
-
-[[transformers]]
-name = "gofmt"
-enabled = true
-
-[[transformers]]
-name = "yapf"
 enabled = true
 
 [[transformers]]
@@ -52,5 +36,21 @@ name = "prettier"
 enabled = true
 
 [[transformers]]
+name = "black"
+enabled = true
+
+[[transformers]]
+name = "gofmt"
+enabled = true
+
+[[transformers]]
+name = "yapf"
+enabled = true
+
+[[transformers]]
 name = "standardjs"
+enabled = true
+
+[[transformers]]
+name = "rubocop"
 enabled = true
