@@ -1,10 +1,10 @@
 # gfsmux
 
-----
+---
 
 gfsmux: Efficient stream multiplexing for Go
 
-----
+---
 
 ## Availability
 
@@ -13,10 +13,10 @@ gfsmux: Efficient stream multiplexing for Go
 - [SourceHut](https://sr.ht/~trn/gfsmux)
 - [NotABug](https://notabug.org/trn/gfsmux)
 
-----
+---
 
 ## License
 
 - The MIT License
 
-----
+---
