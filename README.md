@@ -21,6 +21,6 @@ gfsmux: Efficient stream multiplexing for Go
 
 ## License
 
-- The MIT License
+- [The MIT License](https://github.com/johnsonjh/gfsmux/blob/master/LICENSE)
 
 ---
