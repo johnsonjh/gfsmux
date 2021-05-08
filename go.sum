@@ -4,8 +4,6 @@ github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/johnsonjh/leaktestfe v0.0.0-20210417042619-44f7010a6410 h1:RkcvVgIgsAY9SgvWMFhByyV8TgSIt/WnM+cb7zrZDdY=
 github.com/johnsonjh/leaktestfe v0.0.0-20210417042619-44f7010a6410/go.mod h1:FpCNbltXoj3DYjOySpRrdUsrPpPC2FclqSwzseTpihA=
-github.com/johnsonjh/leaktestfe v0.0.0-20210508223059-eb553145f8fd/go.mod h1:ayzyshdeVZrs6ec40LKDtIEey7L+yDgiBzKPQfakSbE=
-github.com/johnsonjh/leaktestfe v0.0.0-20210508225121-8eb1ff631186/go.mod h1:Upk6JDupXOe2MzkGJFvoZcOanAI9igZ0CRh5RwLPyOU=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pretty v0.2.1/go.mod h1:ipq/a2n7PKx3OHsz4KJII5eveXtPO4qwEXGdVfWzfnI=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
