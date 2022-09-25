@@ -1,6 +1,6 @@
 module github.com/johnsonjh/gfsmux
 
-go 1.17
+go 1.19
 
 require github.com/johnsonjh/leaktestfe v0.0.0-20220404202031-62cc076563b5
 
