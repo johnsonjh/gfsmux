@@ -2,7 +2,7 @@ module github.com/johnsonjh/gfsmux
 
 go 1.19
 
-require github.com/johnsonjh/leaktestfe v0.0.0-20220925174548-251947789032
+require github.com/johnsonjh/leaktestfe v0.0.0-20221120010816-186ef47b700d
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
