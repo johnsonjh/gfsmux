@@ -2,7 +2,7 @@ module github.com/johnsonjh/gfsmux
 
 go 1.19
 
-require github.com/johnsonjh/leaktestfe v0.0.0-20221120010816-186ef47b700d
+require github.com/johnsonjh/leaktestfe v0.0.0-20221210113806-1ad56057a826
 
 require (
 	github.com/stretchr/testify v1.8.2-0.20221102114659-1333b5d3bda8 // indirect
