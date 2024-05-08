@@ -21,6 +21,8 @@ github.com/johnsonjh/leaktestfe v0.0.0-20240423092810-11459cfff073 h1:pKmuxgwSiZ
 github.com/johnsonjh/leaktestfe v0.0.0-20240423092810-11459cfff073/go.mod h1:L1ATWvdIpazWSpShKalXkYj7Mu1R/5LlmwJ8pLq3ZXw=
 github.com/johnsonjh/leaktestfe v0.0.0-20240425170737-28ce056a90a6 h1:rskL4UdBJ1W7gBLaNlTAnKOGKb4UhQe6Awvtyf802VU=
 github.com/johnsonjh/leaktestfe v0.0.0-20240425170737-28ce056a90a6/go.mod h1:L1ATWvdIpazWSpShKalXkYj7Mu1R/5LlmwJ8pLq3ZXw=
+github.com/johnsonjh/leaktestfe v0.0.0-20240508234347-e3882b8e358c h1:/Ans+EOpZxTP7Um1J1XD1o4KMmKwFjeuGshElKb/LJo=
+github.com/johnsonjh/leaktestfe v0.0.0-20240508234347-e3882b8e358c/go.mod h1:L1ATWvdIpazWSpShKalXkYj7Mu1R/5LlmwJ8pLq3ZXw=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
 github.com/stretchr/testify v1.8.2-0.20221102114659-1333b5d3bda8 h1:/Z4A01Ei2R0Etm1XXA3b15NjqFXi6kPG8VjJfmtq7xk=
 go.uber.org/goleak v1.2.0 h1:xqgm/S+aQvhWFTtR0XK3Jvg7z8kGV8P4X14IzwN3Eqk=
